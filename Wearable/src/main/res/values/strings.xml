@@ -14,7 +14,7 @@
   limitations under the License.
 -->
 <resources>
-    <string name="app_name">Wearable Drawer Layout</string>
+    <string name="app_name">Wear Drawers</string>
 
     <!--
     Reference name for each planet's information array.

@@ -14,7 +14,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<android.support.wearable.view.drawer.WearableDrawerLayout
+<android.support.wear.widget.drawer.WearableDrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -22,8 +22,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context="com.example.android.wearable.wear.weardrawers.MainActivity"
-    tools:deviceIds="wear">
+    tools:context="com.example.android.wearable.wear.weardrawers.MainActivity">
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/content"
@@ -38,17 +37,18 @@
 
     </android.support.v4.widget.NestedScrollView>
 
-    <android.support.wearable.view.drawer.WearableNavigationDrawer
+    <android.support.wear.widget.drawer.WearableNavigationDrawerView
         android:id="@+id/top_navigation_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grey" />
+        android:background="@color/grey"
+        app:navigationStyle="multiPage" />
 
-    <android.support.wearable.view.drawer.WearableActionDrawer
+    <android.support.wear.widget.drawer.WearableActionDrawerView
         android:id="@+id/bottom_action_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/grey"
-        app:action_menu="@menu/action_drawer_menu" />
+        app:actionMenu="@menu/action_drawer_menu" />
 
-</android.support.wearable.view.drawer.WearableDrawerLayout>
+</android.support.wear.widget.drawer.WearableDrawerLayout>

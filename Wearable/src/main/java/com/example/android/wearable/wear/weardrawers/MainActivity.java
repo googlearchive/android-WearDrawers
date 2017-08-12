@@ -20,17 +20,14 @@ import android.app.FragmentManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.wear.widget.drawer.WearableActionDrawerView;
+import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.support.wearable.activity.WearableActivity;
-import android.support.wearable.view.drawer.WearableActionDrawer;
-import android.support.wearable.view.drawer.WearableDrawerLayout;
-import android.support.wearable.view.drawer.WearableNavigationDrawer;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -40,13 +37,12 @@ import java.util.ArrayList;
  * Demonstrates use of Navigation and Action Drawers on Android Wear.
  */
 public class MainActivity extends WearableActivity implements
-        WearableActionDrawer.OnMenuItemClickListener {
+        MenuItem.OnMenuItemClickListener, WearableNavigationDrawerView.OnItemSelectedListener {
 
     private static final String TAG = "MainActivity";
 
-    private WearableDrawerLayout mWearableDrawerLayout;
-    private WearableNavigationDrawer mWearableNavigationDrawer;
-    private WearableActionDrawer mWearableActionDrawer;
+    private WearableNavigationDrawerView mWearableNavigationDrawer;
+    private WearableActionDrawerView mWearableActionDrawer;
 
     private ArrayList<Planet> mSolarSystem;
     private int mSelectedPlanet;
@@ -77,30 +73,21 @@ public class MainActivity extends WearableActivity implements
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, mPlanetFragment).commit();
 
-        // Main Wearable Drawer Layout that wraps all content
-        mWearableDrawerLayout = (WearableDrawerLayout) findViewById(R.id.drawer_layout);
 
         // Top Navigation Drawer
         mWearableNavigationDrawer =
-                (WearableNavigationDrawer) findViewById(R.id.top_navigation_drawer);
+                (WearableNavigationDrawerView) findViewById(R.id.top_navigation_drawer);
         mWearableNavigationDrawer.setAdapter(new NavigationAdapter(this));
+        // Peeks navigation drawer on the top.
+        mWearableNavigationDrawer.getController().peekDrawer();
+        mWearableNavigationDrawer.addOnItemSelectedListener(this);
 
         // Bottom Action Drawer
         mWearableActionDrawer =
-                (WearableActionDrawer) findViewById(R.id.bottom_action_drawer);
-
+                (WearableActionDrawerView) findViewById(R.id.bottom_action_drawer);
+        // Peeks action drawer on the bottom.
+        mWearableActionDrawer.getController().peekDrawer();
         mWearableActionDrawer.setOnMenuItemClickListener(this);
-
-        // Temporarily peeks the navigation and action drawers to ensure the user is aware of them.
-        ViewTreeObserver observer = mWearableDrawerLayout.getViewTreeObserver();
-        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                mWearableDrawerLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                mWearableDrawerLayout.peekDrawer(Gravity.TOP);
-                mWearableDrawerLayout.peekDrawer(Gravity.BOTTOM);
-            }
-        });
 
         /* Action Drawer Tip: If you only have a single action for your Action Drawer, you can use a
          * (custom) View to peek on top of the content by calling
@@ -154,7 +141,7 @@ public class MainActivity extends WearableActivity implements
                 break;
         }
 
-        mWearableDrawerLayout.closeDrawer(mWearableActionDrawer);
+        mWearableActionDrawer.getController().closeDrawer();
 
         if (toastMessage.length() > 0) {
             Toast toast = Toast.makeText(
@@ -168,8 +155,20 @@ public class MainActivity extends WearableActivity implements
         }
     }
 
+    // Updates content when user changes between items in the navigation drawer.
+    @Override
+    public void onItemSelected(int position) {
+        Log.d(TAG, "WearableNavigationDrawerView triggered onItemSelected(): " + position);
+        mSelectedPlanet = position;
+
+        String selectedPlanetImage = mSolarSystem.get(mSelectedPlanet).getImage();
+        int drawableId =
+                getResources().getIdentifier(selectedPlanetImage, "drawable", getPackageName());
+        mPlanetFragment.updatePlanet(drawableId);
+    }
+
     private final class NavigationAdapter
-            extends WearableNavigationDrawer.WearableNavigationDrawerAdapter {
+            extends WearableNavigationDrawerView.WearableNavigationDrawerAdapter {
 
         private final Context mContext;
 
@@ -180,17 +179,6 @@ public class MainActivity extends WearableActivity implements
         @Override
         public int getCount() {
             return mSolarSystem.size();
-        }
-
-        @Override
-        public void onItemSelected(int position) {
-            Log.d(TAG, "WearableNavigationDrawerAdapter.onItemSelected(): " + position);
-            mSelectedPlanet = position;
-
-            String selectedPlanetImage = mSolarSystem.get(mSelectedPlanet).getImage();
-            int drawableId =
-                    getResources().getIdentifier(selectedPlanetImage, "drawable", getPackageName());
-            mPlanetFragment.updatePlanet(drawableId);
         }
 
         @Override
@@ -222,8 +210,8 @@ public class MainActivity extends WearableActivity implements
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
+        public View onCreateView(
+                LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_planet, container, false);
 
             mImageView = ((ImageView) rootView.findViewById(R.id.image));
