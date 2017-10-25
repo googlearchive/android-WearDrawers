@@ -15,14 +15,18 @@ limitations under the License.
  */
 package com.example.android.wearable.wear.weardrawers;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.graphics.ColorFilter;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.wear.ambient.AmbientMode;
 import android.support.wear.widget.drawer.WearableActionDrawerView;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
-import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -36,8 +40,10 @@ import java.util.ArrayList;
 /**
  * Demonstrates use of Navigation and Action Drawers on Android Wear.
  */
-public class MainActivity extends WearableActivity implements
-        MenuItem.OnMenuItemClickListener, WearableNavigationDrawerView.OnItemSelectedListener {
+public class MainActivity extends Activity implements
+        AmbientMode.AmbientCallbackProvider,
+        MenuItem.OnMenuItemClickListener,
+        WearableNavigationDrawerView.OnItemSelectedListener {
 
     private static final String TAG = "MainActivity";
 
@@ -55,7 +61,9 @@ public class MainActivity extends WearableActivity implements
         Log.d(TAG, "onCreate()");
 
         setContentView(R.layout.activity_main);
-        setAmbientEnabled();
+
+        // Enables Ambient mode.
+        AmbientMode.attachAmbientSupport(this);
 
         mSolarSystem = initializeSolarSystem();
         mSelectedPlanet = 0;
@@ -204,6 +212,7 @@ public class MainActivity extends WearableActivity implements
         public static final String ARG_PLANET_IMAGE_ID = "planet_image_id";
 
         private ImageView mImageView;
+        private ColorFilter mImageViewColorFilter;
 
         public PlanetFragment() {
             // Empty constructor required for fragment subclasses
@@ -219,11 +228,59 @@ public class MainActivity extends WearableActivity implements
             int imageIdToLoad = getArguments().getInt(ARG_PLANET_IMAGE_ID);
             mImageView.setImageResource(imageIdToLoad);
 
+            mImageViewColorFilter = mImageView.getColorFilter();
+
             return rootView;
         }
 
         public void updatePlanet(int imageId) {
             mImageView.setImageResource(imageId);
+        }
+
+        public void onEnterAmbientInFragment(Bundle ambientDetails) {
+            Log.d(TAG, "PlanetFragment.onEnterAmbient() " + ambientDetails);
+
+            // Convert image to grayscale for ambient mode.
+            ColorMatrix matrix = new ColorMatrix();
+            matrix.setSaturation(0);
+
+            ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+            mImageView.setColorFilter(filter);
+        }
+
+        /** Restores the UI to active (non-ambient) mode. */
+        public void onExitAmbientInFragment() {
+            Log.d(TAG, "PlanetFragment.onExitAmbient()");
+
+            mImageView.setColorFilter(mImageViewColorFilter);
+        }
+    }
+
+    @Override
+    public AmbientMode.AmbientCallback getAmbientCallback() {
+        return new MyAmbientCallback();
+    }
+
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {
+        /** Prepares the UI for ambient mode. */
+        @Override
+        public void onEnterAmbient(Bundle ambientDetails) {
+            super.onEnterAmbient(ambientDetails);
+            Log.d(TAG, "onEnterAmbient() " + ambientDetails);
+
+            mPlanetFragment.onEnterAmbientInFragment(ambientDetails);
+            mWearableNavigationDrawer.getController().closeDrawer();
+            mWearableActionDrawer.getController().closeDrawer();
+        }
+
+        /** Restores the UI to active (non-ambient) mode. */
+        @Override
+        public void onExitAmbient() {
+            super.onExitAmbient();
+            Log.d(TAG, "onExitAmbient()");
+
+            mPlanetFragment.onExitAmbientInFragment();
+            mWearableActionDrawer.getController().peekDrawer();
         }
     }
 }
