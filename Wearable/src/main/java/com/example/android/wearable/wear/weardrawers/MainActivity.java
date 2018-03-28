@@ -38,7 +38,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 /**
- * Demonstrates use of Navigation and Action Drawers on Android Wear.
+ * Demonstrates use of Navigation and Action Drawers on Wear.
  */
 public class MainActivity extends Activity implements
         AmbientMode.AmbientCallbackProvider,

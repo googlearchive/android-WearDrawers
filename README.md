@@ -14,8 +14,8 @@ Steps for trying out this sample:
             If installed on a phone, it will not be automatically pushed to a paired Wear
             device, see [here][2] for more info).
 
-            This sample uses the planets in our solar system to demonstrate the two Android Wear
-            drawer components and concepts relating to [Android Wear][1] and [Material Design][3]:
+            This sample uses the planets in our solar system to demonstrate the two Wear
+            drawer components and concepts relating to [Wear][1] and [Material Design][3]:
             * Customizes and enables screen/planet changes with the [Navigation Drawer][4]
             * Adds customized actions to each screen using the [Action Drawer][5]
 
@@ -29,7 +29,7 @@ Pre-requisites
 --------------
 
 - Android SDK 27
-- Android Build Tools v27.0.2
+- Android Build Tools v27.0.3
 - Android Support Repository
 
 Screenshots
