@@ -15,7 +15,6 @@ limitations under the License.
  */
 package com.example.android.wearable.wear.weardrawers;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -24,7 +23,8 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.wear.ambient.AmbientMode;
+import android.support.v4.app.FragmentActivity;
+import android.support.wear.ambient.AmbientModeSupport;
 import android.support.wear.widget.drawer.WearableActionDrawerView;
 import android.support.wear.widget.drawer.WearableNavigationDrawerView;
 import android.util.Log;
@@ -40,8 +40,8 @@ import java.util.ArrayList;
 /**
  * Demonstrates use of Navigation and Action Drawers on Wear.
  */
-public class MainActivity extends Activity implements
-        AmbientMode.AmbientCallbackProvider,
+public class MainActivity extends FragmentActivity implements
+        AmbientModeSupport.AmbientCallbackProvider,
         MenuItem.OnMenuItemClickListener,
         WearableNavigationDrawerView.OnItemSelectedListener {
 
@@ -63,7 +63,7 @@ public class MainActivity extends Activity implements
         setContentView(R.layout.activity_main);
 
         // Enables Ambient mode.
-        AmbientMode.attachAmbientSupport(this);
+        AmbientModeSupport.attach(this);
 
         mSolarSystem = initializeSolarSystem();
         mSelectedPlanet = 0;
@@ -223,7 +223,7 @@ public class MainActivity extends Activity implements
                 LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_planet, container, false);
 
-            mImageView = ((ImageView) rootView.findViewById(R.id.image));
+            mImageView = rootView.findViewById(R.id.image);
 
             int imageIdToLoad = getArguments().getInt(ARG_PLANET_IMAGE_ID);
             mImageView.setImageResource(imageIdToLoad);
@@ -257,11 +257,11 @@ public class MainActivity extends Activity implements
     }
 
     @Override
-    public AmbientMode.AmbientCallback getAmbientCallback() {
+    public AmbientModeSupport.AmbientCallback getAmbientCallback() {
         return new MyAmbientCallback();
     }
 
-    private class MyAmbientCallback extends AmbientMode.AmbientCallback {
+    private class MyAmbientCallback extends AmbientModeSupport.AmbientCallback {
         /** Prepares the UI for ambient mode. */
         @Override
         public void onEnterAmbient(Bundle ambientDetails) {
